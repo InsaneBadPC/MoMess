@@ -1,0 +1,90 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Install Android SDK components
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDKMANAGER="${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER="$(find "${ANDROID_HOME}" -path '*cmdline-tools/*/bin/sdkmanager' | head -n1)"
+          fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" --install "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.11.1"
+
+      - name: Inject API key into assets
+        shell: bash
+        run: |
+          if [ -n "${{ secrets.GOOGLE_AI_STUDIO_KEY }}" ]; then
+            sed -i "s|const DEFAULT_API_KEY = \"\";|const DEFAULT_API_KEY = \"${{ secrets.GOOGLE_AI_STUDIO_KEY }}\";|g" app/src/main/assets/www/index.html
+          fi
+
+      - name: Prepare signing keystore
+        shell: bash
+        run: |
+          if [ -n "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" ]; then
+            echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 -d > release.jks
+            echo "RELEASE_KEYSTORE_PATH=release.jks" >> $GITHUB_ENV
+            echo "RELEASE_KEYSTORE_PASSWORD=${{ secrets.RELEASE_KEYSTORE_PASSWORD }}" >> $GITHUB_ENV
+            echo "RELEASE_KEY_ALIAS=${{ secrets.RELEASE_KEY_ALIAS }}" >> $GITHUB_ENV
+            echo "RELEASE_KEY_PASSWORD=${{ secrets.RELEASE_KEY_PASSWORD }}" >> $GITHUB_ENV
+          fi
+
+      - name: Build APK
+        run: |
+          gradle assembleDebug --stacktrace
+          if [ -f "release.jks" ]; then
+            gradle assembleRelease --stacktrace
+          fi
+
+      - name: Rename APKs for release
+        shell: bash
+        run: |
+          mkdir -p dist-apk
+          cp app/build/outputs/apk/debug/*.apk dist-apk/MoMess-debug.apk || true
+          if [ -f app/build/outputs/apk/release/*-release.apk ]; then
+            cp app/build/outputs/apk/release/*-release.apk dist-apk/MoMess-release.apk
+          fi
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: momess-apk
+          path: dist-apk/*.apk
+          if-no-files-found: error
+
+      - name: Publish GitHub Release
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0
+          name: "MoMess v1.0.0"
+          draft: false
+          prerelease: false
+          files: dist-apk/*.apk
+          generate_release_notes: true

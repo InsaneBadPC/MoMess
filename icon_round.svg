@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGradR" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#121316"/>
+      <stop offset="100%" stop-color="#0a0a0c"/>
+    </linearGradient>
+    <linearGradient id="bubbleGradR" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00C6FF"/>
+      <stop offset="50%" stop-color="#0072FF"/>
+      <stop offset="100%" stop-color="#9b51e0"/>
+    </linearGradient>
+    <linearGradient id="mGradR" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e2e8f0"/>
+    </linearGradient>
+    <filter id="glowR" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#0072FF" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <circle cx="256" cy="256" r="256" fill="url(#bgGradR)"/>
+  <circle cx="256" cy="256" r="254" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+
+  <g filter="url(#glowR)">
+    <path d="M 256 96 C 158 96 80 166 80 252 C 80 302 106 346 148 374 C 145 396 136 418 116 438 C 114 440 115 444 118 444 C 152 444 186 426 210 403 C 225 407 240 408 256 408 C 354 408 432 338 432 252 C 432 166 354 96 256 96 Z" fill="url(#bubbleGradR)"/>
+  </g>
+
+  <path d="M 180 310 L 180 196 C 180 192 184 189 188 191 L 256 242 L 324 191 C 328 189 332 192 332 196 L 332 310 C 332 314 328 318 324 318 C 320 318 316 314 316 310 L 316 220 L 263 260 C 259 263 253 263 249 260 L 196 220 L 196 310 C 196 314 192 318 188 318 C 184 318 180 314 180 310 Z" fill="url(#mGradR)"/>
+</svg>

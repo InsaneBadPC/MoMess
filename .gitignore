@@ -1,0 +1,8 @@
+.gradle/
+build/
+app/build/
+*.apk
+*.jks
+dist-apk/
+*.b64
+template.html
