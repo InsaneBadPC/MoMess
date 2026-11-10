@@ -20,19 +20,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Dark theme status & navigation bar
-        window.statusBarColor = Color.parseColor("#0b0c0e")
-        window.navigationBarColor = Color.parseColor("#0b0c0e")
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.insetsController?.setSystemBarsAppearance(
-                0,
-                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
-            )
-        } else {
-            @Suppress("DEPRECATION")
-            window.decorView.systemUiVisibility = 0
-        }
-
         webView = createWebView().apply {
             setBackgroundColor(Color.parseColor("#0b0c0e"))
             settings.apply {
@@ -51,6 +38,20 @@ class MainActivity : AppCompatActivity() {
         }
 
         setContentView(webView)
+
+        // Dark theme status & navigation bar (after decor view exists)
+        window.statusBarColor = Color.parseColor("#0b0c0e")
+        window.navigationBarColor = Color.parseColor("#0b0c0e")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.insetsController?.setSystemBarsAppearance(
+                0,
+                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = 0
+        }
+
         webView.loadUrl("file:///android_asset/www/index.html")
     }
 
