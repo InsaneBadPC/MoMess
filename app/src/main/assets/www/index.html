@@ -738,6 +738,7 @@
     <div class="sheet">
       <div class="sheet-title" id="conv-sheet-title">Konverzace</div>
       <button class="sheet-btn" id="conv-sheet-edit">Upravit postavu</button>
+      <button class="sheet-btn" id="conv-sheet-duplicate">Duplikovat postavu</button>
       <button class="sheet-btn danger" id="conv-sheet-delete">Smazat konverzaci</button>
       <button class="sheet-btn cancel" id="conv-sheet-cancel">Zrušit</button>
     </div>
@@ -859,6 +860,20 @@
     function closeConvSheet() {
       document.getElementById("conv-sheet").classList.remove("open");
       pendingConvId = null;
+    }
+
+    function duplicateConversation(id) {
+      const src = state.conversations.find(x => x.id === id);
+      if (!src) return;
+
+      const copy = JSON.parse(JSON.stringify(src));
+      copy.id = "conv-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8);
+      copy.name = src.name + " (kopie)";
+
+      const idx = state.conversations.findIndex(x => x.id === id);
+      state.conversations.splice(idx + 1, 0, copy);
+      saveState();
+      renderInbox();
     }
 
     function deleteConversation(id) {
@@ -1186,6 +1201,12 @@
       const id = pendingConvId;
       closeConvSheet();
       if (id) openEditor(id);
+    });
+
+    document.getElementById("conv-sheet-duplicate").addEventListener("click", () => {
+      const id = pendingConvId;
+      closeConvSheet();
+      if (id) duplicateConversation(id);
     });
 
     document.getElementById("conv-sheet-delete").addEventListener("click", () => {
