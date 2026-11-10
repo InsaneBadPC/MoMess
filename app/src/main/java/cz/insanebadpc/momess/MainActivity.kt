@@ -1,6 +1,7 @@
 package cz.insanebadpc.momess
 
 import android.annotation.SuppressLint
+import android.content.res.Resources
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -32,7 +33,7 @@ class MainActivity : AppCompatActivity() {
             window.decorView.systemUiVisibility = 0
         }
 
-        webView = WebView(this).apply {
+        webView = createWebView().apply {
             setBackgroundColor(Color.parseColor("#0b0c0e"))
             settings.apply {
                 javaScriptEnabled = true
@@ -51,6 +52,30 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(webView)
         webView.loadUrl("file:///android_asset/www/index.html")
+    }
+
+    private fun createWebView(): WebView {
+        return try {
+            WebView(this)
+        } catch (t: Throwable) {
+            if (!isWebViewResourceRedirectFailure(t)) throw t
+            WebView(this)
+        }
+    }
+
+    private fun isWebViewResourceRedirectFailure(t: Throwable): Boolean {
+        var current: Throwable? = t
+        var depth = 0
+        while (current != null && depth < 10) {
+            if (current is Resources.NotFoundException &&
+                current.message?.contains("failed to redirect ResourcesImpl") == true
+            ) {
+                return true
+            }
+            current = current.cause
+            depth++
+        }
+        return false
     }
 
     override fun onBackPressed() {
