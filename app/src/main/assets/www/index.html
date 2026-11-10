@@ -666,14 +666,6 @@
       <input type="password" id="cfg-gemini-key" placeholder="AI Studio Key">
     </div>
 
-    <div class="form-group">
-      <label>Zobrazení časů u zpráv</label>
-      <select id="cfg-timestamps">
-        <option value="always">Trvale pod každou zprávou</option>
-        <option value="grouped">Pouze oddělovače (jak na fotce)</option>
-      </select>
-    </div>
-
     <div class="actions-grid" style="margin-top: 24px;">
       <button class="btn btn-primary" style="flex: 1;" id="global-save-btn">Uložit nastavení</button>
       <button class="btn btn-danger" style="flex: 1;" id="global-reset-factory-btn">Obnovit výchozí</button>
@@ -721,7 +713,6 @@
 
     let state = {
       apiKey: DEFAULT_API_KEY,
-      timestampMode: "always",
       conversations: DEFAULT_CONVERSATIONS,
       activeConvId: "martin-sobo"
     };
@@ -756,9 +747,7 @@
 
         const lastMsg = c.messages[c.messages.length - 1];
         let snippet = "Žádné zprávy";
-        let timeStr = "";
         if (lastMsg) {
-          timeStr = lastMsg.time || "";
           snippet = lastMsg.image ? "Obrázek" : lastMsg.text;
           if (lastMsg.sender === "outgoing") snippet = "Vy: " + snippet;
         }
@@ -773,7 +762,6 @@
           <div class="conv-body">
             <div class="conv-header">
               <span class="conv-name">${c.name}</span>
-              <span class="conv-time">${timeStr}</span>
             </div>
             <div class="conv-snippet">${snippet}</div>
           </div>
@@ -816,7 +804,7 @@
       if (!c) return;
 
       const container = document.getElementById("chat-messages-container");
-      container.innerHTML = '<div class="timestamp-separator">Dnes 16:32</div>';
+      container.innerHTML = "";
 
       c.messages.forEach((m, idx) => {
         const row = document.createElement("div");
@@ -842,13 +830,6 @@
           bubble.innerText = m.text;
         }
         wrap.appendChild(bubble);
-
-        if (state.timestampMode === "always" && m.time) {
-          const t = document.createElement("div");
-          t.className = "msg-time-label";
-          t.innerText = m.time;
-          wrap.appendChild(t);
-        }
 
         row.appendChild(wrap);
         container.appendChild(row);
@@ -1049,13 +1030,11 @@
 
     document.getElementById("btn-open-global-settings").addEventListener("click", () => {
       document.getElementById("cfg-gemini-key").value = state.apiKey || "";
-      document.getElementById("cfg-timestamps").value = state.timestampMode || "always";
       showScreen("screen-global");
     });
 
     document.getElementById("global-save-btn").addEventListener("click", () => {
       state.apiKey = document.getElementById("cfg-gemini-key").value.trim();
-      state.timestampMode = document.getElementById("cfg-timestamps").value;
       saveState();
       showScreen("screen-inbox");
     });

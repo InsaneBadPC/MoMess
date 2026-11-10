@@ -6,7 +6,9 @@ import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowInsetsController
+import android.widget.FrameLayout
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -42,9 +44,19 @@ class MainActivity : AppCompatActivity() {
             overScrollMode = View.OVER_SCROLL_NEVER
         }
 
-        setContentView(webView)
+        val root = FrameLayout(this).apply {
+            setBackgroundColor(Color.parseColor("#0b0c0e"))
+            addView(
+                webView,
+                FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+            )
+        }
+        setContentView(root)
 
-        ViewCompat.setOnApplyWindowInsetsListener(webView) { view, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
             val bars = insets.getInsets(
                 WindowInsetsCompat.Type.systemBars() or
                     WindowInsetsCompat.Type.displayCutout() or
@@ -53,7 +65,7 @@ class MainActivity : AppCompatActivity() {
             view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
             insets
         }
-        ViewCompat.requestApplyInsets(webView)
+        ViewCompat.requestApplyInsets(root)
 
         // Dark theme status & navigation bar (after decor view exists)
         window.statusBarColor = Color.parseColor("#0b0c0e")
