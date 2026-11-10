@@ -17,10 +17,10 @@ android {
         versionName = "1.0.0"
     }
 
+    val ksFile = File(rootDir, "release.jks")
+
     signingConfigs {
         create("release") {
-            val ksPath = System.getenv("RELEASE_KEYSTORE_PATH") ?: "release.jks"
-            val ksFile = File(ksPath)
             if (ksFile.exists()) {
                 storeFile = ksFile
                 storePassword = System.getenv("RELEASE_KEYSTORE_PASSWORD") ?: ""
@@ -33,8 +33,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
-            val ksPath = System.getenv("RELEASE_KEYSTORE_PATH") ?: "release.jks"
-            if (File(ksPath).exists()) {
+            if (ksFile.exists()) {
                 signingConfig = signingConfigs.getByName("release")
             }
             proguardFiles(
