@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsetsController
 import android.widget.FrameLayout
+import android.webkit.WebChromeClient
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -41,6 +42,7 @@ class MainActivity : AppCompatActivity() {
                 mediaPlaybackRequiresUserGesture = false
             }
             webViewClient = WebViewClient()
+            webChromeClient = WebChromeClient()
             overScrollMode = View.OVER_SCROLL_NEVER
         }
 

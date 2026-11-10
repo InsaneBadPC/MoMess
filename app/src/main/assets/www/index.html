@@ -868,7 +868,6 @@
         alert("Musí zůstat alespoň jedna konverzace.");
         return;
       }
-      if (!confirm(`Smazat konverzaci s ${c.name}?`)) return;
       state.conversations = state.conversations.filter(x => x.id !== id);
       if (state.activeConvId === id) {
         state.activeConvId = state.conversations[0]?.id || null;
